@@ -73,12 +73,12 @@ target_include_directories(Bridge
 
 include(GNUInstallDirs)
 
-# Install public header files
-install(DIRECTORY .
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    FILES_MATCHING
-        PATTERN "*.h" 
-        PATTERN "*.hpp"
-    # Optional: exclude internal/private headers if needed
-    # PATTERN "internal/*" EXCLUDE
-)
+# Install public header files, preserving directory structure.
+# Using GLOB_RECURSE + per-file install ensures no empty directories are created.
+file(GLOB_RECURSE _public_headers RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h" "*.hpp")
+foreach(_header IN LISTS _public_headers)
+    get_filename_component(_dir "${_header}" DIRECTORY)
+    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/${_header}"
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${_dir}"
+    )
+endforeach()
